@@ -1,27 +1,28 @@
-# Payload Website Template
+# Maddox Tees B2B E-commerce Platform
 
-This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/main/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
+This is a comprehensive B2B e-commerce platform for Maddox Tees, a custom t-shirt printing business. The platform serves both retail and wholesale customers with specialized features for custom printing services, product catalogs, and a secure customer portal.
 
-This template is right for you if you are working on:
+This platform is built with:
 
-- A personal or enterprise-grade website, blog, or portfolio
-- A content publishing platform with a fully featured publication workflow
-- Exploring the capabilities of Payload
+- Payload CMS as the core technology
+- Next.js 14+ with App Router architecture
+- Shadcn UI library for consistent design
+- MongoDB for data persistence
+- Zustand for state management
 
 Core features:
 
-- [Pre-configured Payload Config](#how-it-works)
-- [Authentication](#users-authentication)
-- [Access Control](#access-control)
-- [Layout Builder](#layout-builder)
-- [Draft Preview](#draft-preview)
-- [Live Preview](#live-preview)
-- [On-demand Revalidation](#on-demand-revalidation)
-- [SEO](#seo)
-- [Search](#search)
-- [Redirects](#redirects)
-- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
-- [Website](#website)
+- [B2B and Retail Customer Portal](#customer-portal)
+- [Product Catalog with Customization](#product-catalog)
+- [DTF Printing Services](#dtf-printing-services)
+- [Custom Printing Tool](#custom-printing-tool)
+- [Order Management System](#order-management)
+- [Payment Processing with Stripe](#payment-processing)
+- [Shipping Integration with Shiprocket](#shipping-integration)
+- [Marketing Expense Tracker](#marketing-expense-tracker)
+- [SEO Optimization](#seo)
+- [Responsive Design](#responsive-design)
+- [Authentication and Security](#authentication-and-security)
 
 ## Quick Start
 

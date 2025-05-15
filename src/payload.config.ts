@@ -7,9 +7,18 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { Customers } from './collections/Customers'
+import { DTFPrinting } from './collections/DTFPrinting'
+import { MarketingExpenses } from './collections/MarketingExpenses'
 import { Media } from './collections/Media'
+import { Orders } from './collections/Orders'
 import { Pages } from './collections/Pages'
+import { Partners } from './collections/Partners'
 import { Posts } from './collections/Posts'
+import { ProductCategories } from './collections/ProductCategories'
+import { Products } from './collections/Products'
+import { RecentWork } from './collections/RecentWork'
+import { Testimonials } from './collections/Testimonials'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -62,13 +71,25 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    Products,
+    ProductCategories,
+    DTFPrinting,
+    Customers,
+    Orders,
+    MarketingExpenses,
+    Testimonials,
+    Partners,
+    RecentWork,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
-  plugins: [
-    ...plugins,
-    // storage-adapter-placeholder
-  ],
+  plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

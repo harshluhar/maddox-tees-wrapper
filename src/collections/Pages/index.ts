@@ -5,8 +5,15 @@ import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { Archive } from '../../blocks/ArchiveBlock/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
 import { Content } from '../../blocks/Content/config'
+import { FeaturedServices } from '../../blocks/FeaturedServices/config'
 import { FormBlock } from '../../blocks/Form/config'
+import { HeroBanner } from '../../blocks/HeroBanner/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { PartnerLogosBlock } from '../../blocks/PartnerLogosBlock/config'
+import { PricingCalculatorBlock } from '../../blocks/PricingCalculatorBlock/config'
+import { ProductSelectionBlock } from '../../blocks/ProductSelectionBlock/config'
+import { RecentWorkBlock } from '../../blocks/RecentWorkBlock/config'
+import { TestimonialsBlock } from '../../blocks/TestimonialsBlock/config'
 import { hero } from '@/heros/config'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
@@ -75,7 +82,20 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [
+                CallToAction,
+                Content,
+                MediaBlock,
+                Archive,
+                FormBlock,
+                HeroBanner,
+                FeaturedServices,
+                TestimonialsBlock,
+                RecentWorkBlock,
+                PartnerLogosBlock,
+                ProductSelectionBlock,
+                PricingCalculatorBlock,
+              ],
               required: true,
               admin: {
                 initCollapsed: true,

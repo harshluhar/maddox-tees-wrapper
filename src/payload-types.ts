@@ -54,6 +54,7 @@ export type SupportedTimezones =
   | 'Asia/Singapore'
   | 'Asia/Tokyo'
   | 'Asia/Seoul'
+  | 'Australia/Brisbane'
   | 'Australia/Sydney'
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
@@ -63,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    customers: CustomerAuthOperations;
   };
   blocks: {};
   collections: {
@@ -71,6 +73,15 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    products: Product;
+    'product-categories': ProductCategory;
+    'dtf-printing': DtfPrinting;
+    customers: Customer;
+    orders: Order;
+    'marketing-expenses': MarketingExpense;
+    testimonials: Testimonial;
+    partners: Partner;
+    'recent-work': RecentWork;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -87,6 +98,15 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
+    'dtf-printing': DtfPrintingSelect<false> | DtfPrintingSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    'marketing-expenses': MarketingExpensesSelect<false> | MarketingExpensesSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    partners: PartnersSelect<false> | PartnersSelect<true>;
+    'recent-work': RecentWorkSelect<false> | RecentWorkSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -108,9 +128,13 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user:
+    | (User & {
+        collection: 'users';
+      })
+    | (Customer & {
+        collection: 'customers';
+      });
   jobs: {
     tasks: {
       schedulePublish: TaskSchedulePublish;
@@ -123,6 +147,24 @@ export interface Config {
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface CustomerAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -190,7 +232,387 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+    | {
+        title: string;
+        subtitle?: string | null;
+        content?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        backgroundImage: string | Media;
+        /**
+         * Add a dark overlay to the background image for better text visibility
+         */
+        backgroundOverlay?: boolean | null;
+        overlayOpacity?: ('0.1' | '0.2' | '0.3' | '0.4' | '0.5' | '0.6' | '0.7' | '0.8' | '0.9') | null;
+        textColor?: ('light' | 'dark') | null;
+        textAlignment?: ('left' | 'center' | 'right') | null;
+        height?: ('small' | 'medium' | 'large' | 'full') | null;
+        primaryCTA: {
+          label: string;
+          link: string;
+          style?: ('primary' | 'secondary' | 'outline') | null;
+          size?: ('sm' | 'md' | 'lg') | null;
+        };
+        secondaryCTA: {
+          label: string;
+          link: string;
+          style?: ('primary' | 'secondary' | 'outline') | null;
+          size?: ('sm' | 'md' | 'lg') | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'hero-banner';
+      }
+    | {
+        heading: string;
+        subheading?: string | null;
+        services?:
+          | {
+              title: string;
+              description: string;
+              image: string | Media;
+              link: string;
+              linkLabel?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Auto-rotate carousel items
+         */
+        autoRotate?: boolean | null;
+        /**
+         * Rotation interval in milliseconds
+         */
+        rotationInterval?: number | null;
+        /**
+         * Pause rotation on hover
+         */
+        pauseOnHover?: boolean | null;
+        /**
+         * Show navigation dots
+         */
+        showDots?: boolean | null;
+        /**
+         * Show navigation arrows
+         */
+        showArrows?: boolean | null;
+        backgroundColor?: ('light' | 'dark' | 'primary' | 'secondary' | 'transparent') | null;
+        textColor?: ('light' | 'dark') | null;
+        padding?: ('none' | 'small' | 'medium' | 'large') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'featured-services';
+      }
+    | {
+        heading: string;
+        subheading?: string | null;
+        /**
+         * Select testimonials to display
+         */
+        testimonials: (string | Testimonial)[];
+        layout?: ('carousel' | 'grid' | 'list') | null;
+        /**
+         * Number of testimonials to display
+         */
+        displayCount?: number | null;
+        /**
+         * Show star ratings
+         */
+        showRating?: boolean | null;
+        /**
+         * Show company logos
+         */
+        showCompanyLogo?: boolean | null;
+        /**
+         * Show customer photos
+         */
+        showCustomerPhoto?: boolean | null;
+        backgroundColor?: ('light' | 'dark' | 'primary' | 'secondary' | 'transparent') | null;
+        textColor?: ('light' | 'dark') | null;
+        padding?: ('none' | 'small' | 'medium' | 'large') | null;
+        /**
+         * Auto-rotate carousel items
+         */
+        autoRotate?: boolean | null;
+        /**
+         * Rotation interval in milliseconds
+         */
+        rotationInterval?: number | null;
+        /**
+         * Pause rotation on hover
+         */
+        pauseOnHover?: boolean | null;
+        /**
+         * Show navigation dots
+         */
+        showDots?: boolean | null;
+        /**
+         * Show navigation arrows
+         */
+        showArrows?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'testimonials-block';
+      }
+    | {
+        heading: string;
+        subheading?: string | null;
+        /**
+         * Select projects to display
+         */
+        projects: (string | RecentWork)[];
+        layout?: ('grid' | 'masonry' | 'carousel') | null;
+        /**
+         * Number of projects to display
+         */
+        displayCount?: number | null;
+        /**
+         * Enable category filtering
+         */
+        enableFiltering?: boolean | null;
+        /**
+         * Categories to include in filters
+         */
+        categories?:
+          | ('dtf' | 'custom_tshirts' | 'corporate_uniforms' | 'event_merchandise' | 'promotional_products' | 'other')[]
+          | null;
+        /**
+         * Show project title
+         */
+        showTitle?: boolean | null;
+        /**
+         * Show client name
+         */
+        showClient?: boolean | null;
+        /**
+         * Show project category
+         */
+        showCategory?: boolean | null;
+        /**
+         * Enable image lightbox on click
+         */
+        enableLightbox?: boolean | null;
+        /**
+         * Link to project detail page
+         */
+        linkToDetailPage?: boolean | null;
+        backgroundColor?: ('light' | 'dark' | 'primary' | 'secondary' | 'transparent') | null;
+        textColor?: ('light' | 'dark') | null;
+        padding?: ('none' | 'small' | 'medium' | 'large') | null;
+        viewAllButton?: {
+          show?: boolean | null;
+          label?: string | null;
+          link?: string | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'recent-work-block';
+      }
+    | {
+        heading: string;
+        subheading?: string | null;
+        /**
+         * Select partners to display
+         */
+        partners: (string | Partner)[];
+        layout?: ('grid' | 'carousel') | null;
+        columns?: ('3' | '4' | '5' | '6') | null;
+        /**
+         * Number of partners to display
+         */
+        displayCount?: number | null;
+        /**
+         * Enable hover animation (subtle scale transform)
+         */
+        enableHoverAnimation?: boolean | null;
+        /**
+         * Display logos in grayscale
+         */
+        grayscale?: boolean | null;
+        /**
+         * Show color on hover
+         */
+        colorOnHover?: boolean | null;
+        /**
+         * Link logos to partner websites
+         */
+        linkToPartnerWebsite?: boolean | null;
+        backgroundColor?: ('light' | 'dark' | 'primary' | 'secondary' | 'transparent') | null;
+        padding?: ('none' | 'small' | 'medium' | 'large') | null;
+        /**
+         * Auto-rotate carousel items
+         */
+        autoRotate?: boolean | null;
+        /**
+         * Rotation interval in milliseconds
+         */
+        rotationInterval?: number | null;
+        /**
+         * Pause rotation on hover
+         */
+        pauseOnHover?: boolean | null;
+        /**
+         * Show navigation dots
+         */
+        showDots?: boolean | null;
+        /**
+         * Show navigation arrows
+         */
+        showArrows?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'partner-logos-block';
+      }
+    | {
+        heading: string;
+        subheading?: string | null;
+        description?: string | null;
+        productTypes?:
+          | {
+              name: string;
+              description?: string | null;
+              image: string | Media;
+              products: (string | Product)[];
+              id?: string | null;
+            }[]
+          | null;
+        customizationOptions?:
+          | {
+              name: string;
+              description?: string | null;
+              type: 'printing_method' | 'colors' | 'sizes' | 'other';
+              options?:
+                | {
+                    label: string;
+                    value: string;
+                    image?: (string | null) | Media;
+                    additionalPrice?: number | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        quantityAndDelivery?: {
+          quantityRanges?:
+            | {
+                label: string;
+                minQuantity: number;
+                maxQuantity?: number | null;
+                discountPercentage?: number | null;
+                id?: string | null;
+              }[]
+            | null;
+          deliveryOptions?:
+            | {
+                name: string;
+                description?: string | null;
+                estimatedDays: number;
+                price: number;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        /**
+         * Show fixed-position product preview box
+         */
+        showProductPreview?: boolean | null;
+        previewBoxPosition?: ('right' | 'left') | null;
+        backgroundColor?: ('light' | 'dark' | 'primary' | 'secondary' | 'transparent') | null;
+        textColor?: ('light' | 'dark') | null;
+        padding?: ('none' | 'small' | 'medium' | 'large') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'product-selection-block';
+      }
+    | {
+        heading: string;
+        subheading?: string | null;
+        description?: string | null;
+        calculatorType: 'dtf' | 'custom_tshirts';
+        dtfPricingTiers?:
+          | {
+              /**
+               * Minimum length in meters
+               */
+              minLength: number;
+              /**
+               * Maximum length in meters (leave empty for unlimited)
+               */
+              maxLength?: number | null;
+              /**
+               * Price per unit in INR
+               */
+              pricePerUnit: number;
+              id?: string | null;
+            }[]
+          | null;
+        tshirtPricingFactors?: {
+          /**
+           * Base price per t-shirt
+           */
+          basePrice: number;
+          quantityDiscounts?:
+            | {
+                minQuantity: number;
+                maxQuantity?: number | null;
+                discountPercentage: number;
+                id?: string | null;
+              }[]
+            | null;
+          printingMethods?:
+            | {
+                method: string;
+                additionalCost: number;
+                id?: string | null;
+              }[]
+            | null;
+          colorOptions?:
+            | {
+                option: string;
+                additionalCost: number;
+                id?: string | null;
+              }[]
+            | null;
+          sizeOptions?:
+            | {
+                size: string;
+                additionalCost: number;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        showRequestQuoteButton?: boolean | null;
+        requestQuoteButtonLabel?: string | null;
+        requestQuoteButtonLink?: string | null;
+        showAddToCartButton?: boolean | null;
+        addToCartButtonLabel?: string | null;
+        backgroundColor?: ('light' | 'dark' | 'primary' | 'secondary' | 'transparent') | null;
+        textColor?: ('light' | 'dark') | null;
+        padding?: ('none' | 'small' | 'medium' | 'large') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'pricing-calculator-block';
+      }
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -624,6 +1046,7 @@ export interface Form {
             label?: string | null;
             width?: number | null;
             defaultValue?: string | null;
+            placeholder?: string | null;
             options?:
               | {
                   label: string;
@@ -722,6 +1145,501 @@ export interface Form {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: string;
+  customerName: string;
+  companyName: string;
+  /**
+   * Position/title of the person giving the testimonial
+   */
+  position?: string | null;
+  testimonial: string;
+  rating: number;
+  /**
+   * Company logo (optional)
+   */
+  companyLogo?: (string | null) | Media;
+  /**
+   * Customer photo (optional)
+   */
+  customerPhoto?: (string | null) | Media;
+  /**
+   * Approve this testimonial for display on the website
+   */
+  approved?: boolean | null;
+  /**
+   * Feature this testimonial on the home page
+   */
+  featured?: boolean | null;
+  /**
+   * Display order (lower numbers appear first)
+   */
+  order?: number | null;
+  customerType: 'retail' | 'wholesale';
+  projectType: 'dtf' | 'custom_tshirts' | 'solid_tshirts' | 'other';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recent-work".
+ */
+export interface RecentWork {
+  id: string;
+  title: string;
+  client: string;
+  category: 'dtf' | 'custom_tshirts' | 'corporate_uniforms' | 'event_merchandise' | 'promotional_products' | 'other';
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  images: {
+    image: string | Media;
+    alt: string;
+    caption?: string | null;
+    id?: string | null;
+  }[];
+  /**
+   * Feature this work on the home page
+   */
+  featured?: boolean | null;
+  /**
+   * When was this project completed?
+   */
+  completionDate?: string | null;
+  /**
+   * Related testimonial (if available)
+   */
+  testimonial?: (string | null) | Testimonial;
+  /**
+   * Display order (lower numbers appear first)
+   */
+  order?: number | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners".
+ */
+export interface Partner {
+  id: string;
+  name: string;
+  logo: string | Media;
+  /**
+   * Partner website URL
+   */
+  website?: string | null;
+  description?: string | null;
+  partnerType: 'supplier' | 'distributor' | 'manufacturer' | 'technology' | 'logistics' | 'other';
+  /**
+   * Is this an active partnership?
+   */
+  active?: boolean | null;
+  /**
+   * Feature this partner on the home page
+   */
+  featured?: boolean | null;
+  /**
+   * Display order (lower numbers appear first)
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  title: string;
+  price: number;
+  /**
+   * Sale price (if applicable)
+   */
+  salePrice?: number | null;
+  /**
+   * Select the categories this product belongs to
+   */
+  categories?: (string | ProductCategory)[] | null;
+  images: {
+    image: string | Media;
+    alt: string;
+    id?: string | null;
+  }[];
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  sizes?:
+    | {
+        size: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
+        inventory: number;
+        id?: string | null;
+      }[]
+    | null;
+  colors?:
+    | {
+        name: string;
+        /**
+         * Hex color code (e.g., #FF0000)
+         */
+        colorCode: string;
+        /**
+         * Image showing the product in this color
+         */
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  material: 'cotton' | 'polyester' | 'poly-cotton' | 'organic';
+  brand?: string | null;
+  /**
+   * Feature this product on the home page
+   */
+  featured?: boolean | null;
+  paymentTerms: 'full_upfront' | 'split_payment';
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories".
+ */
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string | null;
+  /**
+   * Category image for display purposes
+   */
+  image?: (string | null) | Media;
+  /**
+   * Parent category (if this is a subcategory)
+   */
+  parent?: (string | null) | ProductCategory;
+  /**
+   * Feature this category on the home page
+   */
+  featured?: boolean | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dtf-printing".
+ */
+export interface DtfPrinting {
+  id: string;
+  title: string;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  pricingTiers: {
+    /**
+     * Minimum length in meters
+     */
+    minLength: number;
+    /**
+     * Maximum length in meters (leave empty for unlimited)
+     */
+    maxLength?: number | null;
+    /**
+     * Price per unit in INR
+     */
+    pricePerUnit: number;
+    id?: string | null;
+  }[];
+  gallery?:
+    | {
+        image: string | Media;
+        alt: string;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  faqs?:
+    | {
+        question: string;
+        answer: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  technicalSpecs?:
+    | {
+        name: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  paymentTerms: 'full_upfront' | 'split_payment';
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: string;
+  companyName: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  /**
+   * Goods and Services Tax Identification Number
+   */
+  gstin?: string | null;
+  billingAddress: {
+    line1: string;
+    line2?: string | null;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  shippingAddress?: {
+    sameAsBilling?: boolean | null;
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  customerType: 'retail' | 'wholesale';
+  /**
+   * Credit limit for wholesale customers (in INR)
+   */
+  creditLimit?: number | null;
+  /**
+   * Upload business documents (GST certificate, PAN card, etc.)
+   */
+  documents?:
+    | {
+        name: string;
+        document: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Internal notes about this customer (not visible to customer)
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  /**
+   * Unique order number (auto-generated)
+   */
+  orderNumber: string;
+  customer: string | Customer;
+  items: {
+    product: string | Product;
+    quantity: number;
+    size?: string | null;
+    color?: string | null;
+    price: number;
+    customization?: {
+      type?: ('none' | 'dtf' | 'custom') | null;
+      designFile?: (string | null) | Media;
+      notes?: string | null;
+      additionalCost?: number | null;
+    };
+    id?: string | null;
+  }[];
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  discount?: number | null;
+  total: number;
+  status: 'pending' | 'processing' | 'partially_paid' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  paymentMethod?: ('razorpay' | 'bank_transfer' | 'cod') | null;
+  paymentStatus: 'pending' | 'partially_paid' | 'paid' | 'failed' | 'refunded';
+  paymentTerms: 'full_upfront' | 'split_payment';
+  transactions?:
+    | {
+        transactionId: string;
+        amount: number;
+        method: 'razorpay' | 'bank_transfer' | 'cod';
+        status: 'success' | 'failed' | 'pending';
+        date: string;
+        id?: string | null;
+      }[]
+    | null;
+  shippingDetails: {
+    address: {
+      line1: string;
+      line2?: string | null;
+      city: string;
+      state: string;
+      postalCode: string;
+      country: string;
+    };
+    trackingNumber?: string | null;
+    carrier?: string | null;
+    estimatedDelivery?: string | null;
+    shiprocketOrderId?: string | null;
+  };
+  /**
+   * Internal notes about this order (not visible to customer)
+   */
+  notes?: string | null;
+  /**
+   * Notes from the customer
+   */
+  customerNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-expenses".
+ */
+export interface MarketingExpense {
+  id: string;
+  campaign: string;
+  platform:
+    | 'facebook'
+    | 'instagram'
+    | 'google'
+    | 'linkedin'
+    | 'twitter'
+    | 'youtube'
+    | 'tiktok'
+    | 'print'
+    | 'outdoor'
+    | 'radio'
+    | 'television'
+    | 'trade_show'
+    | 'other';
+  amount: number;
+  date: string;
+  /**
+   * End date for campaigns that run over a period
+   */
+  endDate?: string | null;
+  description?: string | null;
+  targetAudience: 'retail' | 'wholesale' | 'both';
+  metrics?: {
+    impressions?: number | null;
+    clicks?: number | null;
+    conversions?: number | null;
+    revenue?: number | null;
+    roi?: number | null;
+  };
+  attachments?:
+    | {
+        name: string;
+        file: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  status: 'planned' | 'active' | 'completed' | 'cancelled';
+  /**
+   * Internal notes about this marketing expense
+   */
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -918,6 +1836,42 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'product-categories';
+        value: string | ProductCategory;
+      } | null)
+    | ({
+        relationTo: 'dtf-printing';
+        value: string | DtfPrinting;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: string | Customer;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'marketing-expenses';
+        value: string | MarketingExpense;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: string | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'partners';
+        value: string | Partner;
+      } | null)
+    | ({
+        relationTo: 'recent-work';
+        value: string | RecentWork;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -938,10 +1892,15 @@ export interface PayloadLockedDocument {
         value: string | PayloadJob;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'customers';
+        value: string | Customer;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -951,10 +1910,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'customers';
+        value: string | Customer;
+      };
   key?: string | null;
   value?:
     | {
@@ -1015,6 +1979,258 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        'hero-banner'?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              content?: T;
+              backgroundImage?: T;
+              backgroundOverlay?: T;
+              overlayOpacity?: T;
+              textColor?: T;
+              textAlignment?: T;
+              height?: T;
+              primaryCTA?:
+                | T
+                | {
+                    label?: T;
+                    link?: T;
+                    style?: T;
+                    size?: T;
+                  };
+              secondaryCTA?:
+                | T
+                | {
+                    label?: T;
+                    link?: T;
+                    style?: T;
+                    size?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'featured-services'?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              services?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
+                    link?: T;
+                    linkLabel?: T;
+                    id?: T;
+                  };
+              autoRotate?: T;
+              rotationInterval?: T;
+              pauseOnHover?: T;
+              showDots?: T;
+              showArrows?: T;
+              backgroundColor?: T;
+              textColor?: T;
+              padding?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'testimonials-block'?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              testimonials?: T;
+              layout?: T;
+              displayCount?: T;
+              showRating?: T;
+              showCompanyLogo?: T;
+              showCustomerPhoto?: T;
+              backgroundColor?: T;
+              textColor?: T;
+              padding?: T;
+              autoRotate?: T;
+              rotationInterval?: T;
+              pauseOnHover?: T;
+              showDots?: T;
+              showArrows?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'recent-work-block'?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              projects?: T;
+              layout?: T;
+              displayCount?: T;
+              enableFiltering?: T;
+              categories?: T;
+              showTitle?: T;
+              showClient?: T;
+              showCategory?: T;
+              enableLightbox?: T;
+              linkToDetailPage?: T;
+              backgroundColor?: T;
+              textColor?: T;
+              padding?: T;
+              viewAllButton?:
+                | T
+                | {
+                    show?: T;
+                    label?: T;
+                    link?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'partner-logos-block'?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              partners?: T;
+              layout?: T;
+              columns?: T;
+              displayCount?: T;
+              enableHoverAnimation?: T;
+              grayscale?: T;
+              colorOnHover?: T;
+              linkToPartnerWebsite?: T;
+              backgroundColor?: T;
+              padding?: T;
+              autoRotate?: T;
+              rotationInterval?: T;
+              pauseOnHover?: T;
+              showDots?: T;
+              showArrows?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'product-selection-block'?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              description?: T;
+              productTypes?:
+                | T
+                | {
+                    name?: T;
+                    description?: T;
+                    image?: T;
+                    products?: T;
+                    id?: T;
+                  };
+              customizationOptions?:
+                | T
+                | {
+                    name?: T;
+                    description?: T;
+                    type?: T;
+                    options?:
+                      | T
+                      | {
+                          label?: T;
+                          value?: T;
+                          image?: T;
+                          additionalPrice?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              quantityAndDelivery?:
+                | T
+                | {
+                    quantityRanges?:
+                      | T
+                      | {
+                          label?: T;
+                          minQuantity?: T;
+                          maxQuantity?: T;
+                          discountPercentage?: T;
+                          id?: T;
+                        };
+                    deliveryOptions?:
+                      | T
+                      | {
+                          name?: T;
+                          description?: T;
+                          estimatedDays?: T;
+                          price?: T;
+                          id?: T;
+                        };
+                  };
+              showProductPreview?: T;
+              previewBoxPosition?: T;
+              backgroundColor?: T;
+              textColor?: T;
+              padding?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'pricing-calculator-block'?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              description?: T;
+              calculatorType?: T;
+              dtfPricingTiers?:
+                | T
+                | {
+                    minLength?: T;
+                    maxLength?: T;
+                    pricePerUnit?: T;
+                    id?: T;
+                  };
+              tshirtPricingFactors?:
+                | T
+                | {
+                    basePrice?: T;
+                    quantityDiscounts?:
+                      | T
+                      | {
+                          minQuantity?: T;
+                          maxQuantity?: T;
+                          discountPercentage?: T;
+                          id?: T;
+                        };
+                    printingMethods?:
+                      | T
+                      | {
+                          method?: T;
+                          additionalCost?: T;
+                          id?: T;
+                        };
+                    colorOptions?:
+                      | T
+                      | {
+                          option?: T;
+                          additionalCost?: T;
+                          id?: T;
+                        };
+                    sizeOptions?:
+                      | T
+                      | {
+                          size?: T;
+                          additionalCost?: T;
+                          id?: T;
+                        };
+                  };
+              showRequestQuoteButton?: T;
+              requestQuoteButtonLabel?: T;
+              requestQuoteButtonLink?: T;
+              showAddToCartButton?: T;
+              addToCartButtonLabel?: T;
+              backgroundColor?: T;
+              textColor?: T;
+              padding?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -1276,6 +2492,338 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T;
+  price?: T;
+  salePrice?: T;
+  categories?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        id?: T;
+      };
+  description?: T;
+  sizes?:
+    | T
+    | {
+        size?: T;
+        inventory?: T;
+        id?: T;
+      };
+  colors?:
+    | T
+    | {
+        name?: T;
+        colorCode?: T;
+        image?: T;
+        id?: T;
+      };
+  material?: T;
+  brand?: T;
+  featured?: T;
+  paymentTerms?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories_select".
+ */
+export interface ProductCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  image?: T;
+  parent?: T;
+  featured?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dtf-printing_select".
+ */
+export interface DtfPrintingSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  pricingTiers?:
+    | T
+    | {
+        minLength?: T;
+        maxLength?: T;
+        pricePerUnit?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        caption?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  technicalSpecs?:
+    | T
+    | {
+        name?: T;
+        value?: T;
+        id?: T;
+      };
+  paymentTerms?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  companyName?: T;
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  gstin?: T;
+  billingAddress?:
+    | T
+    | {
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  shippingAddress?:
+    | T
+    | {
+        sameAsBilling?: T;
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  customerType?: T;
+  creditLimit?: T;
+  documents?:
+    | T
+    | {
+        name?: T;
+        document?: T;
+        id?: T;
+      };
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  _verified?: T;
+  _verificationToken?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  customer?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        quantity?: T;
+        size?: T;
+        color?: T;
+        price?: T;
+        customization?:
+          | T
+          | {
+              type?: T;
+              designFile?: T;
+              notes?: T;
+              additionalCost?: T;
+            };
+        id?: T;
+      };
+  subtotal?: T;
+  tax?: T;
+  shipping?: T;
+  discount?: T;
+  total?: T;
+  status?: T;
+  paymentMethod?: T;
+  paymentStatus?: T;
+  paymentTerms?: T;
+  transactions?:
+    | T
+    | {
+        transactionId?: T;
+        amount?: T;
+        method?: T;
+        status?: T;
+        date?: T;
+        id?: T;
+      };
+  shippingDetails?:
+    | T
+    | {
+        address?:
+          | T
+          | {
+              line1?: T;
+              line2?: T;
+              city?: T;
+              state?: T;
+              postalCode?: T;
+              country?: T;
+            };
+        trackingNumber?: T;
+        carrier?: T;
+        estimatedDelivery?: T;
+        shiprocketOrderId?: T;
+      };
+  notes?: T;
+  customerNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-expenses_select".
+ */
+export interface MarketingExpensesSelect<T extends boolean = true> {
+  campaign?: T;
+  platform?: T;
+  amount?: T;
+  date?: T;
+  endDate?: T;
+  description?: T;
+  targetAudience?: T;
+  metrics?:
+    | T
+    | {
+        impressions?: T;
+        clicks?: T;
+        conversions?: T;
+        revenue?: T;
+        roi?: T;
+      };
+  attachments?:
+    | T
+    | {
+        name?: T;
+        file?: T;
+        id?: T;
+      };
+  status?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  customerName?: T;
+  companyName?: T;
+  position?: T;
+  testimonial?: T;
+  rating?: T;
+  companyLogo?: T;
+  customerPhoto?: T;
+  approved?: T;
+  featured?: T;
+  order?: T;
+  customerType?: T;
+  projectType?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners_select".
+ */
+export interface PartnersSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  website?: T;
+  description?: T;
+  partnerType?: T;
+  active?: T;
+  featured?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recent-work_select".
+ */
+export interface RecentWorkSelect<T extends boolean = true> {
+  title?: T;
+  client?: T;
+  category?: T;
+  description?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        caption?: T;
+        id?: T;
+      };
+  featured?: T;
+  completionDate?: T;
+  testimonial?: T;
+  order?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -1355,6 +2903,7 @@ export interface FormsSelect<T extends boolean = true> {
               label?: T;
               width?: T;
               defaultValue?: T;
+              placeholder?: T;
               options?:
                 | T
                 | {
@@ -1647,6 +3196,14 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'posts';
           value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'products';
+          value: string | Product;
+        } | null)
+      | ({
+          relationTo: 'dtf-printing';
+          value: string | DtfPrinting;
         } | null);
     global?: string | null;
     user?: (string | null) | User;

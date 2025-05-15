@@ -1,7 +1,7 @@
 {
-  "name": "",
+  "name": "maddox-tees-b2b",
   "version": "1.0.0",
-  "description": "Website template for Payload",
+  "description": "B2B e-commerce platform for Maddox Tees using Payload CMS",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -24,6 +24,7 @@
     "@payloadcms/live-preview-react": "3.33.0",
     "@payloadcms/next": "3.33.0",
     "@payloadcms/payload-cloud": "3.33.0",
+    "@payloadcms/plugin-cloud-storage": "3.33.0",
     "@payloadcms/plugin-form-builder": "3.33.0",
     "@payloadcms/plugin-nested-docs": "3.33.0",
     "@payloadcms/plugin-redirects": "3.33.0",
@@ -42,6 +43,7 @@
     "graphql": "^16.8.2",
     "lucide-react": "^0.378.0",
     "next": "15.3.0",
+    "next-auth": "5.0.0-beta.28",
     "next-sitemap": "^4.2.3",
     "payload": "3.33.0",
     "prism-react-renderer": "^2.3.1",
@@ -49,8 +51,10 @@
     "react-dom": "19.1.0",
     "react-hook-form": "7.45.4",
     "sharp": "0.32.6",
+    "stripe": "^18.1.0",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
