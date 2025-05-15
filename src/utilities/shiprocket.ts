@@ -8,49 +8,49 @@ type ShiprocketOrderItem = {
   sku: string
   units: number
   selling_price: number
-  discount: number
-  tax: number
-  hsn: number
+  discount: number | undefined
+  tax: number | undefined
+  hsn: number | undefined
 }
 
 type ShiprocketOrderRequest = {
   order_id: string
-  order_date: string
+  order_date: string | undefined
   pickup_location: string
   channel_id: string
-  comment: string
-  billing_customer_name: string
-  billing_last_name: string
-  billing_address: string
-  billing_address_2: string
-  billing_city: string
-  billing_pincode: string
-  billing_state: string
-  billing_country: string
-  billing_email: string
-  billing_phone: string
+  comment: string | undefined
+  billing_customer_name: string | undefined
+  billing_last_name: string | undefined
+  billing_address: string | undefined
+  billing_address_2: string | undefined
+  billing_city: string | undefined
+  billing_pincode: string | undefined
+  billing_state: string | undefined
+  billing_country: string | undefined
+  billing_email: string | undefined
+  billing_phone: string | undefined
   shipping_is_billing: boolean
-  shipping_customer_name?: string
-  shipping_last_name?: string
-  shipping_address?: string
-  shipping_address_2?: string
-  shipping_city?: string
-  shipping_pincode?: string
-  shipping_state?: string
-  shipping_country?: string
-  shipping_email?: string
-  shipping_phone?: string
+  shipping_customer_name?: string | null | undefined
+  shipping_last_name?: string | null | undefined
+  shipping_address?: string | null | undefined
+  shipping_address_2?: string | null | undefined
+  shipping_city?: string | null | undefined
+  shipping_pincode?: string | null | undefined
+  shipping_state?: string | null | undefined
+  shipping_country?: string | null | undefined
+  shipping_email?: string | null | undefined
+  shipping_phone?: string | null | undefined
   order_items: ShiprocketOrderItem[]
-  payment_method: 'prepaid' | 'COD'
-  shipping_charges: number
-  giftwrap_charges: number
-  transaction_charges: number
-  total_discount: number
-  sub_total: number
-  length: number
-  breadth: number
-  height: number
-  weight: number
+  payment_method: 'prepaid' | 'COD' | string
+  shipping_charges: number | undefined
+  giftwrap_charges: number | undefined
+  transaction_charges: number | undefined
+  total_discount: number | null | undefined
+  sub_total: number | undefined
+  length: number | undefined
+  breadth: number | undefined
+  height: number | undefined
+  weight: number | undefined
 }
 
 // Get Shiprocket auth token
@@ -80,7 +80,9 @@ export async function getShiprocketToken(): Promise<string> {
 }
 
 // Create a Shiprocket order
-export async function createShiprocketOrder(orderData: ShiprocketOrderRequest): Promise<any> {
+export async function createShiprocketOrder(
+  orderData: ShiprocketOrderRequest,
+): Promise<Record<string, unknown>> {
   try {
     const token = await getShiprocketToken()
 
@@ -88,7 +90,7 @@ export async function createShiprocketOrder(orderData: ShiprocketOrderRequest): 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(orderData),
     })
@@ -105,17 +107,20 @@ export async function createShiprocketOrder(orderData: ShiprocketOrderRequest): 
 }
 
 // Track a Shiprocket order
-export async function trackShiprocketOrder(orderId: string): Promise<any> {
+export async function trackShiprocketOrder(orderId: string): Promise<Record<string, unknown>> {
   try {
     const token = await getShiprocketToken()
 
-    const response = await fetch(`https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${orderId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+    const response = await fetch(
+      `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${orderId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       },
-    })
+    )
 
     if (!response.ok) {
       throw new Error(`Shiprocket order tracking failed: ${response.statusText}`)
@@ -129,7 +134,10 @@ export async function trackShiprocketOrder(orderId: string): Promise<any> {
 }
 
 // Generate Shiprocket AWB (tracking number)
-export async function generateShiprocketAWB(shipmentId: string, courierId: string): Promise<any> {
+export async function generateShiprocketAWB(
+  shipmentId: string,
+  courierId: string,
+): Promise<Record<string, unknown>> {
   try {
     const token = await getShiprocketToken()
 
@@ -137,7 +145,7 @@ export async function generateShiprocketAWB(shipmentId: string, courierId: strin
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         shipment_id: shipmentId,
@@ -157,7 +165,9 @@ export async function generateShiprocketAWB(shipmentId: string, courierId: strin
 }
 
 // Generate Shiprocket label
-export async function generateShiprocketLabel(shipmentId: string): Promise<any> {
+export async function generateShiprocketLabel(
+  shipmentId: string,
+): Promise<Record<string, unknown>> {
   try {
     const token = await getShiprocketToken()
 
@@ -165,7 +175,7 @@ export async function generateShiprocketLabel(shipmentId: string): Promise<any> 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         shipment_id: [shipmentId],

@@ -8,10 +8,7 @@ export async function POST(req: NextRequest) {
     const { orderId } = body
 
     if (!orderId) {
-      return NextResponse.json(
-        { error: 'Order ID is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
 
     // Get the Payload client
@@ -24,32 +21,32 @@ export async function POST(req: NextRequest) {
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Get the customer from Payload
     const customer = await payload.findByID({
       collection: 'customers',
-      id: order.customer,
+      id: order.customer as string,
     })
 
     if (!customer) {
-      return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
     }
 
     // Prepare order items for Shiprocket
-    const orderItems = order.items.map((item: any) => {
+    const orderItems = order.items.map((item: Record<string, unknown>) => {
+      const product = (item.product as Record<string, unknown>) || {}
+      const title = typeof product.title === 'string' ? product.title : 'Product'
+      const id = typeof product.id === 'string' ? product.id : ''
+      const quantity = typeof item.quantity === 'number' ? item.quantity : 1
+      const price = typeof item.price === 'number' ? item.price : 0
+
       return {
-        name: item.product.title,
-        sku: item.product.id,
-        units: item.quantity,
-        selling_price: item.price,
+        name: title,
+        sku: id,
+        units: quantity,
+        selling_price: price,
         discount: 0,
         tax: 0,
         hsn: 6109, // HSN code for t-shirts
@@ -62,7 +59,9 @@ export async function POST(req: NextRequest) {
     // Create Shiprocket order
     const shiprocketOrderData = {
       order_id: order.orderNumber,
-      order_date: new Date(order.createdAt).toISOString().split('T')[0],
+      order_date: order.createdAt
+        ? new Date(order.createdAt).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0],
       pickup_location: 'Primary',
       channel_id: '',
       comment: order.customerNotes || '',
@@ -79,12 +78,12 @@ export async function POST(req: NextRequest) {
       shipping_is_billing: shippingIsBilling,
       shipping_customer_name: shippingIsBilling ? undefined : customer.firstName,
       shipping_last_name: shippingIsBilling ? undefined : customer.lastName,
-      shipping_address: shippingIsBilling ? undefined : customer.shippingAddress.line1,
-      shipping_address_2: shippingIsBilling ? undefined : customer.shippingAddress.line2 || '',
-      shipping_city: shippingIsBilling ? undefined : customer.shippingAddress.city,
-      shipping_pincode: shippingIsBilling ? undefined : customer.shippingAddress.postalCode,
-      shipping_state: shippingIsBilling ? undefined : customer.shippingAddress.state,
-      shipping_country: shippingIsBilling ? undefined : customer.shippingAddress.country,
+      shipping_address: shippingIsBilling ? undefined : customer.shippingAddress?.line1,
+      shipping_address_2: shippingIsBilling ? undefined : customer.shippingAddress?.line2 || '',
+      shipping_city: shippingIsBilling ? undefined : customer.shippingAddress?.city,
+      shipping_pincode: shippingIsBilling ? undefined : customer.shippingAddress?.postalCode,
+      shipping_state: shippingIsBilling ? undefined : customer.shippingAddress?.state,
+      shipping_country: shippingIsBilling ? undefined : customer.shippingAddress?.country,
       shipping_email: shippingIsBilling ? undefined : customer.email,
       shipping_phone: shippingIsBilling ? undefined : customer.phone,
       order_items: orderItems,
@@ -103,11 +102,35 @@ export async function POST(req: NextRequest) {
     // Create Shiprocket order
     const shiprocketResponse = await createShiprocketOrder(shiprocketOrderData)
 
+    // Extract shipment_id and courier_company_id with type checking
+    const shipmentId =
+      typeof shiprocketResponse.shipment_id === 'string'
+        ? shiprocketResponse.shipment_id
+        : String(shiprocketResponse.shipment_id || '')
+
+    const courierId =
+      typeof shiprocketResponse.courier_company_id === 'string'
+        ? shiprocketResponse.courier_company_id
+        : String(shiprocketResponse.courier_company_id || '')
+
     // Generate AWB (tracking number)
-    const awbResponse = await generateShiprocketAWB(
-      shiprocketResponse.shipment_id,
-      shiprocketResponse.courier_company_id
-    )
+    const awbResponse = await generateShiprocketAWB(shipmentId, courierId)
+
+    // Extract tracking details with type checking
+    const trackingNumber =
+      typeof awbResponse.awb_code === 'string'
+        ? awbResponse.awb_code
+        : String(awbResponse.awb_code || '')
+
+    const carrier =
+      typeof shiprocketResponse.courier_name === 'string'
+        ? shiprocketResponse.courier_name
+        : String(shiprocketResponse.courier_name || '')
+
+    const shiprocketOrderId =
+      typeof shiprocketResponse.order_id === 'string'
+        ? shiprocketResponse.order_id
+        : String(shiprocketResponse.order_id || '')
 
     // Update order in Payload with Shiprocket details
     await payload.update({
@@ -117,24 +140,21 @@ export async function POST(req: NextRequest) {
         status: 'shipped',
         shippingDetails: {
           ...order.shippingDetails,
-          trackingNumber: awbResponse.awb_code,
-          carrier: shiprocketResponse.courier_name,
-          shiprocketOrderId: shiprocketResponse.order_id,
+          trackingNumber: trackingNumber,
+          carrier: carrier,
+          shiprocketOrderId: shiprocketOrderId,
         },
       },
     })
 
     return NextResponse.json({
       success: true,
-      shiprocketOrderId: shiprocketResponse.order_id,
-      trackingNumber: awbResponse.awb_code,
-      carrier: shiprocketResponse.courier_name,
+      shiprocketOrderId: shiprocketOrderId,
+      trackingNumber: trackingNumber,
+      carrier: carrier,
     })
   } catch (error) {
     console.error('Shipping error:', error)
-    return NextResponse.json(
-      { error: 'Error creating shipment' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error creating shipment' }, { status: 500 })
   }
 }

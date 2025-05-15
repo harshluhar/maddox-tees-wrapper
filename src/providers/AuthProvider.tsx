@@ -18,11 +18,16 @@ const SessionSync = ({ children }: { children: ReactNode }) => {
     setIsLoading(status === 'loading')
 
     if (status === 'authenticated' && session?.user) {
+      const userName = session.user.name || ''
+      const nameParts = userName.split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ''
+
       setUser({
         id: session.user.id as string,
         email: session.user.email as string,
-        firstName: (session.user.name as string).split(' ')[0],
-        lastName: (session.user.name as string).split(' ').slice(1).join(' '),
+        firstName,
+        lastName,
         companyName: session.user.companyName as string,
         customerType: (session.user.customerType as 'retail' | 'wholesale') || 'retail',
       })

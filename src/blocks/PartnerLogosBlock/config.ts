@@ -1,4 +1,4 @@
-import type { Block } from 'payload/types'
+import type { Block } from 'payload'
 
 export const PartnerLogosBlock: Block = {
   slug: 'partner-logos-block',
@@ -131,7 +131,8 @@ export const PartnerLogosBlock: Block = {
       defaultValue: 3000,
       admin: {
         description: 'Rotation interval in milliseconds',
-        condition: (data, siblingData) => siblingData?.layout === 'carousel' && siblingData?.autoRotate,
+        condition: (data, siblingData) =>
+          siblingData?.layout === 'carousel' && siblingData?.autoRotate,
       },
     },
     {
@@ -140,7 +141,8 @@ export const PartnerLogosBlock: Block = {
       defaultValue: true,
       admin: {
         description: 'Pause rotation on hover',
-        condition: (data, siblingData) => siblingData?.layout === 'carousel' && siblingData?.autoRotate,
+        condition: (data, siblingData) =>
+          siblingData?.layout === 'carousel' && siblingData?.autoRotate,
       },
     },
     {

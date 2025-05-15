@@ -49,18 +49,20 @@ export const useCartStore = create<CartStore>()(
       addItem: (item) => {
         const { items } = get()
         const existingItemIndex = items.findIndex(
-          (i) => 
-            i.productId === item.productId && 
-            i.size === item.size && 
+          (i) =>
+            i.productId === item.productId &&
+            i.size === item.size &&
             i.color === item.color &&
-            JSON.stringify(i.customization) === JSON.stringify(item.customization)
+            JSON.stringify(i.customization) === JSON.stringify(item.customization),
         )
 
         if (existingItemIndex !== -1) {
           // Update quantity if item already exists
           const updatedItems = [...items]
-          updatedItems[existingItemIndex].quantity += item.quantity
-          set({ items: updatedItems })
+          if (updatedItems[existingItemIndex]) {
+            updatedItems[existingItemIndex].quantity += item.quantity
+            set({ items: updatedItems })
+          }
         } else {
           // Add new item with unique ID
           set({ items: [...items, { ...item, id: crypto.randomUUID() }] })
@@ -71,9 +73,7 @@ export const useCartStore = create<CartStore>()(
 
       updateItem: (id, updates) => {
         const { items } = get()
-        const updatedItems = items.map((item) =>
-          item.id === id ? { ...item, ...updates } : item
-        )
+        const updatedItems = items.map((item) => (item.id === id ? { ...item, ...updates } : item))
         set({ items: updatedItems })
         get().calculateTotals()
       },
@@ -86,32 +86,34 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => {
-        set({ 
+        set({
           items: [],
           subtotal: 0,
           tax: 0,
           shipping: 0,
           discount: 0,
-          total: 0
+          total: 0,
         })
       },
 
       calculateTotals: () => {
         const { items, shipping, discount } = get()
-        
+
         // Calculate subtotal
         const subtotal = items.reduce(
-          (sum, item) => sum + (item.price * item.quantity) + 
-            (item.customization?.additionalCost || 0) * item.quantity, 
-          0
+          (sum, item) =>
+            sum +
+            item.price * item.quantity +
+            (item.customization?.additionalCost || 0) * item.quantity,
+          0,
         )
-        
+
         // Calculate tax (18% GST)
         const tax = subtotal * 0.18
-        
+
         // Calculate total
         const total = subtotal + tax + shipping - discount
-        
+
         set({ subtotal, tax, total })
       },
 
@@ -127,6 +129,6 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'maddox-tees-cart',
-    }
-  )
+    },
+  ),
 )

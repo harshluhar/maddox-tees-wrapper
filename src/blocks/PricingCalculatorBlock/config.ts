@@ -1,4 +1,4 @@
-import type { Block } from 'payload/types'
+import type { Block } from 'payload'
 
 export const PricingCalculatorBlock: Block = {
   slug: 'pricing-calculator-block',

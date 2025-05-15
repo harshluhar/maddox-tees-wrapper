@@ -5,8 +5,15 @@ import type { Page } from '@/payload-types'
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
+import { FeaturedServicesBlock } from '@/blocks/FeaturedServices/Component'
 import { FormBlock } from '@/blocks/Form/Component'
+import { HeroBannerBlock } from '@/blocks/HeroBanner/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { PartnerLogosBlock } from '@/blocks/PartnerLogosBlock/Component'
+import { PricingCalculatorBlock } from '@/blocks/PricingCalculatorBlock/Component'
+import { ProductSelectionBlock } from '@/blocks/ProductSelectionBlock/Component'
+import { RecentWorkBlock } from '@/blocks/RecentWorkBlock/Component'
+import { TestimonialsBlock } from '@/blocks/TestimonialsBlock/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -14,6 +21,13 @@ const blockComponents = {
   cta: CallToActionBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  'hero-banner': HeroBannerBlock,
+  'featured-services': FeaturedServicesBlock,
+  'testimonials-block': TestimonialsBlock,
+  'recent-work-block': RecentWorkBlock,
+  'partner-logos-block': PartnerLogosBlock,
+  'product-selection-block': ProductSelectionBlock,
+  'pricing-calculator-block': PricingCalculatorBlock,
 }
 
 export const RenderBlocks: React.FC<{
@@ -35,7 +49,6 @@ export const RenderBlocks: React.FC<{
             if (Block) {
               return (
                 <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
                   <Block {...block} disableInnerContainer />
                 </div>
               )
